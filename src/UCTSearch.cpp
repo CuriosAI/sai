@@ -78,7 +78,8 @@ public:
       m_policy_prior(policy_prior), m_pv(pv), m_lcb(lcb), m_areas(areas),
       m_lcb_ratio_exceeded(lcb_ratio_exceeded) {};
 
-    std::string get_info_string(int order) const {
+    std::string get_info_string(int order, int color) const {
+        auto score = color == FastBoard::BLACK ? m_areas : -m_areas;
         auto tmp = "info move " + m_move
                  + " visits " + std::to_string(m_visits)
                  + " winrate "
@@ -86,6 +87,7 @@ public:
                  + " prior "
                  + std::to_string(static_cast<int>(m_policy_prior * 10000.0f))
                  + " lcb " + std::to_string(static_cast<int>(std::max(0.0f, m_lcb) * 10000))
+                 + " scoreLead " + std::to_string(score)
                  + " areas " + std::to_string(static_cast<int>(m_areas * 10000));
         if (order >= 0) {
             tmp += " order " + std::to_string(order);
@@ -626,7 +628,7 @@ void UCTSearch::output_analysis(FastState & state, UCTNode & parent) {
         if (i > 0) {
             gtp_printf_raw(" ");
         }
-        gtp_printf_raw(node.get_info_string(i).c_str());
+        gtp_printf_raw(node.get_info_string(i, color).c_str());
         i++;
     }
     gtp_printf_raw("\n");
